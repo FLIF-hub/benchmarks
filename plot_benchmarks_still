@@ -1,0 +1,22 @@
+#!/bin/bash
+
+source configuration
+
+
+mkdir -p tmp
+
+for c in $INPUTPREFIX_STILL/*
+do
+    TYPE=$(basename $c)
+    if [ -e $PREFIX_STILL.FLIF.$TYPE ]
+    then
+      echo "Plotting $TYPE"
+      perl -p -e "s/CATEGORY/$TYPE/g; s/NUMBER/$(wc -l $PREFIX_STILL.FLIF.$TYPE | cut -f 1 -d " ")/g"  plot-template_still.gnu > tmp/plot.gnu
+      gnuplot tmp/plot.gnu
+    else
+      echo "Skipping $TYPE"
+    fi
+done
+
+perl -p -e "s/CATEGORY/\*/g; s/\*.png/all-still.png/; s/NUMBER/$(cat $PREFIX_STILL.FLIF.* |wc -l)/"  plot-template_still.gnu > tmp/plot.gnu
+gnuplot tmp/plot.gnu

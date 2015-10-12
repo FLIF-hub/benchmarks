@@ -1,0 +1,22 @@
+#!/bin/bash
+
+source configuration
+
+
+mkdir -p tmp
+
+for c in $INPUTPREFIX_ANIM/*
+do
+    TYPE=$(basename $c)
+    if [ -e $PREFIX_ANIM.FLIF.$TYPE ]
+    then
+      echo "Plotting $TYPE"
+      perl -p -e "s/CATEGORY/$TYPE/g; s/NUMBER/$(wc -l $PREFIX_ANIM.FLIF.$TYPE | cut -f 1 -d " ")/g"  plot-template_anim.gnu > tmp/plot.gnu
+      gnuplot tmp/plot.gnu
+    else
+      echo "Skipping $TYPE"
+    fi
+done
+
+perl -p -e "s/CATEGORY/\*/g; s/\*.png/all-anim.png/; s/NUMBER/$(cat $PREFIX_ANIM.FLIF.* |wc -l)/"  plot-template_anim.gnu > tmp/plot.gnu
+gnuplot tmp/plot.gnu

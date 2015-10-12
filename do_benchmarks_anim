@@ -1,0 +1,161 @@
+#!/bin/bash
+
+
+source do_benchmarks_aux
+
+TIMER="/usr/bin/time -o tmp_anim/tmp_anim.timing -f %U"
+
+mkdir -p $(dirname $PREFIX_ANIM)
+mkdir -p tmp_anim
+
+for c in $INPUTPREFIX_ANIM/*
+do
+    TYPE=$(basename $c)
+    OUTDIR=$OUTPUTPREFIX/anim/$TYPE/
+    mkdir -p $OUTDIR
+    mkdir -p $OUTDIR/apng
+    mkdir -p $OUTDIR/mng
+    mkdir -p $OUTDIR/bpg
+    mkdir -p $OUTDIR/gif
+    mkdir -p $OUTDIR/webp
+    mkdir -p $OUTDIR/flif
+    mkdir -p $OUTDIR/flif-n
+
+    if [[ -n "$GIF2APNG" ]]
+    then
+       for f in $c/*.gif
+       do
+                B=$(basename $f .gif)
+                if [[ -e $c/$B.png ]]
+                then
+                   echo "Already converted $f to apng"
+                else
+                   $GIF2APNG  $f $c/$B.png
+                fi
+       done
+    fi
+
+    rm -f $PREFIX_ANIM.APNG.$TYPE
+    if [[ -n $MNG ]]; then rm -f $PREFIX_ANIM.MNG.$TYPE; fi
+    if [[ -n $BPG_A ]]; then rm -f $PREFIX_ANIM.BPG.$TYPE; fi
+    if [[ -n $PNG2GIF ]]; then rm -f $PREFIX_ANIM.GIF.$TYPE; fi
+    if [[ -n $GIF2WEBP ]]; then rm -f $PREFIX_ANIM.WebP.$TYPE; fi
+    if [[ -n $DO_FLIF ]]; then rm -f $PREFIX_ANIM.FLIF.$TYPE; fi
+    if [[ -n $DO_FLIF_N ]]; then rm -f $PREFIX_ANIM.FLIF-n.$TYPE; fi
+
+    for f in $c/*.png
+    do
+                B=$(basename $f .png)
+                echo "Category: $TYPE =========================================================== Image $B"
+                cp $f tmp_anim/tmp_anim.png
+                rm -f tmp_anim/tmp_anim-frame*
+                echo "Extracting frames..."
+                $APNGDIS  tmp_anim/tmp_anim.png tmp_anim/tmp_anim-frame >/dev/null
+                IMAGESIZE=$(identify tmp_anim/tmp_anim.png | cut -f 3 -d " " | cut -d "x" -f 1,2 --output-delimiter " ")
+                if [[ "$TIME_EVERYTHING" == "yes" ]]
+                then
+                  $TIMER $APNGASM $OUTDIR/apng/$B.png tmp_anim/tmp_anim-frame*.png
+                  TIME=$(cat tmp_anim/tmp_anim.timing)
+                  STIME=$TIME
+                  cp $OUTDIR/apng/$B.png tmp_anim/tmp_anim.png
+                  $TIMER apngdis tmp_anim/tmp_anim.png tmp_anim_decoded-frame
+                  TIMED=$(cat tmp_anim/tmp_anim.timing)
+                  STIMED=$TIMED
+                else
+                  TIME="unknown"
+                  STIME="unknown"
+                  TIMED="unknown"
+                  STIMED="unknown"
+                fi
+
+                SIZE=$(stat -c %s tmp_anim/tmp_anim.png 2>&1)
+                SSIZE=$SIZE
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.APNG.$TYPE
+
+                if [[ -n $MNG ]]
+                then
+                OUTFILE=$OUTDIR/mng/$B.mng
+                $TIMER $MNG tmp_anim/tmp_anim-frame*.png $OUTFILE
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.MNG.$TYPE
+                fi
+
+                if [[ -n $BPG_A ]]
+                then
+                OUTFILE=$OUTDIR/bpg/$B.bpg
+                if [[ -e tmp_anim/tmp_anim-frame1.png ]]
+                then
+                $TIMER $BPG_A tmp_anim/tmp_anim-frame%d.png -o $OUTFILE
+                elif [[ -e tmp_anim/tmp_anim-frame01.png ]]
+                then
+                $TIMER $BPG_A tmp_anim/tmp_anim-frame%2d.png -o $OUTFILE
+                elif [[ -e tmp_anim/tmp_anim-frame001.png ]]
+                then
+                $TIMER $BPG_A tmp_anim/tmp_anim-frame%3d.png -o $OUTFILE
+                fi
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.BPG.$TYPE
+                fi
+
+                if [[ -n $PNG2GIF ]]
+                then
+                OUTFILE=$OUTDIR/gif/$B.gif
+                $TIMER $PNG2GIF tmp_anim/tmp_anim-frame*.png $OUTFILE
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.GIF.$TYPE
+                if [[ -n $GIF2WEBP ]]
+                then
+                INFILE=$OUTDIR/gif/$B.gif
+                OUTFILE=$OUTDIR/webp/$B.webp
+                $TIMER $GIF2WEBP $INFILE -o $OUTFILE
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.WebP.$TYPE
+                fi
+                fi
+
+                if [[ "$DO_FLIF" == "yes" ]]
+                then
+                OUTFILE=$OUTDIR/flif/$B.flif
+                $TIMER $FLIF tmp_anim/tmp_anim-frame*.png $OUTFILE
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                if [[ "$CHECK_DECODE" == "yes" ]]
+                then
+                  rm tmp_anim/tmp_anim_flif-decoded*
+                  $TIMER $FLIF -d $OUTFILE tmp_anim/tmp_anim_flif-decoded.pam
+                  TIMED=$(cat tmp_anim/tmp_anim.timing)
+                  check tmp_anim/tmp_anim-frame tmp_anim/tmp_anim_flif-decoded*.pam
+                else
+                  TIMED=unknown
+                fi
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.FLIF.$TYPE
+                fi
+                if [[ "$DO_FLIF_N" == "yes" ]]
+                then
+                OUTFILE=$OUTDIR/flif-n/$B.flif
+                $TIMER $FLIF -n tmp_anim/tmp_anim-frame*.png $OUTFILE
+                TIME=$(cat tmp_anim/tmp_anim.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                if [[ "$CHECK_DECODE" == "yes" ]]
+                then
+                  $TIMER $FLIF -d $OUTFILE tmp_anim/tmp_anim_flif-decoded.pam
+                  TIMED=$(cat tmp_anim/tmp_anim.timing)
+                  check tmp_anim/tmp_anim-frame tmp_anim/tmp_anim_flif-decoded*.pam
+                else
+                  TIMED=unknown
+                fi
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_ANIM.FLIF-n.$TYPE
+                fi
+      done
+done

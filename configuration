@@ -1,0 +1,48 @@
+
+FLIF="../FLIF/flif -v"
+
+PREFIX_STILL="results/r_still"
+PREFIX_ANIM="results/r_anim"
+INPUTPREFIX_STILL="test_images/"
+INPUTPREFIX_ANIM="test_animations/"
+OUTPUTPREFIX="output/"
+
+DO_FLIF="yes"
+DO_FLIF_N="yes"
+# verify that FLIF has no bugs
+CHECK_DECODE="yes"
+
+TIME_EVERYTHING="yes"
+
+
+# other image formats to compare to
+PNG="convert -quality 95"
+PNGADAM7="convert -interlace PNG"
+OPTIPNG="optipng -o7 -strip all"
+BPG="programs/bpgenc -lossless -m 9"
+DBPG="programs/bpgdec"
+JXR="programs/JxrEncApp"
+DJXR="programs/JxrDecApp"
+CWEBP="cwebp -lossless -m 6"
+DWEBP="dwebp -pam"
+JP2="convert -quality 100"
+JPEG="convert -quality 100 -interlace JPEG"
+
+
+# other animation formats to compare to, comment out to disable
+
+# APNG
+APNGDIS="apngdis"
+APNGASM="apngasm"
+GIF2APNG="gif2apng"
+
+# MNG
+MNG="convert -layers optimize-plus"
+
+BPG_A="programs/bpgenc -lossless -m 9 -a"
+
+# GIF (will be lossy if > 256 colors)
+PNG2GIF="convert -layers optimize-plus"
+
+# WebP (will be lossy if > 256 colors)
+GIF2WEBP="gif2webp"

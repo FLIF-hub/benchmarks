@@ -1,0 +1,40 @@
+#!/bin/bash
+# produces a .csv table with a summary of the results
+
+source configuration
+
+OUT_S="table_summary_still.csv"
+
+echo "Writing $OUT_S"
+still_formats="flif optipngAdam7 flif-n webp2 webp zopflipng optipng jp2 jxr jpeg bpg png pngAdam7"
+echo -n "corpus" >$OUT_S
+for f in $still_formats; do echo -n ", $f" >>$OUT_S; done
+echo >>$OUT_S
+for c in $OUTPUTPREFIX/still/*
+do
+    TYPE=$(basename $c)
+    echo -n "$TYPE" >>$OUT_S
+    for FORMAT in $still_formats
+    do
+      echo -n ", $(perl -le 'map { $sum += -s } @ARGV; print $sum;' -- $OUTPUTPREFIX/still/$TYPE/$FORMAT/*)" >>$OUT_S
+    done
+    echo >>$OUT_S
+done
+
+OUT_A="table_summary_anim.csv"
+
+echo "Writing $OUT_A"
+anim_formats="flif flif-n gif mng apng webp bpg"
+echo -n "corpus" >$OUT_A
+for f in $anim_formats; do echo -n ", $f" >>$OUT_A; done
+echo >>$OUT_A
+for c in $OUTPUTPREFIX/anim/*
+do
+    TYPE=$(basename $c)
+    echo -n "$TYPE" >>$OUT_A
+    for FORMAT in $anim_formats
+    do
+      echo -n ", $(perl -le 'map { $sum += -s } @ARGV; print $sum' -- $OUTPUTPREFIX/anim/$TYPE/$FORMAT/*)" >>$OUT_A
+    done
+    echo >>$OUT_A
+done

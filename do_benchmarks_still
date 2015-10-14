@@ -17,18 +17,21 @@ do
     mkdir -p $OUTDIR/png
     if [[ -n $PNGADAM7 ]]; then mkdir -p $OUTDIR/pngAdam7; fi
     if [[ -n $OPTIPNG ]]; then mkdir -p $OUTDIR/optipng; fi
+    if [[ -n $ZOPFLIPNG ]]; then mkdir -p $OUTDIR/zopflipng; fi
     if [[ -n $PNGADAM7 ]]; then mkdir -p $OUTDIR/optipngAdam7; fi
     if [[ -n $BPG ]]; then mkdir -p $OUTDIR/bpg; fi
     if [[ -n $JXR ]]; then mkdir -p $OUTDIR/jxr; fi
     if [[ -n $JP2 ]]; then mkdir -p $OUTDIR/jp2; fi
     if [[ -n $JPEG ]]; then mkdir -p $OUTDIR/jpeg; fi
     if [[ -n $CWEBP ]]; then mkdir -p $OUTDIR/webp; fi
+    if [[ -n $CWEBPnew ]]; then mkdir -p $OUTDIR/webp2; fi
     mkdir -p $OUTDIR/flif
     mkdir -p $OUTDIR/flif-n
 
 
     rm -f $PREFIX_STILL.PNG.$TYPE
     if [[ -n $OPTIPNG ]]; then rm -f $PREFIX_STILL.optiPNG.$TYPE; fi
+    if [[ -n $ZOPFLIPNG ]]; then rm -f $PREFIX_STILL.zopfliPNG.$TYPE; fi
     if [[ -n $PNGADAM7 ]]; then
       rm -f $PREFIX_STILL.PNG-Adam7.$TYPE
       if [[ -n $OPTIPNG ]]; then rm -f $PREFIX_STILL.optiPNG-Adam7.$TYPE; fi
@@ -38,6 +41,7 @@ do
     if [[ -n $JP2 ]]; then rm -f $PREFIX_STILL.JP2.$TYPE; fi
     if [[ -n $JPEG ]]; then rm -f $PREFIX_STILL.JPEG.$TYPE; fi
     if [[ -n $CWEBP ]]; then rm -f $PREFIX_STILL.WebP.$TYPE; fi
+    if [[ -n $CWEBPnew ]]; then rm -f $PREFIX_STILL.WebP2.$TYPE; fi
     if [[ -n $DO_FLIF ]]; then rm -f $PREFIX_STILL.FLIF.$TYPE; fi
     if [[ -n $DO_FLIF_N ]]; then rm -f $PREFIX_STILL.FLIF-n.$TYPE; fi
 
@@ -45,7 +49,8 @@ do
     do
                 B=$(basename $f .png)
                 echo "Category: $TYPE =========================================================== Image $B"
-                $TIMER $PNG $f tmp/tmp.png
+                rm -f tmp/tmp*
+                $TIMER $PNG $f -depth 8 tmp/tmp.png
                 cp tmp/tmp.png $OUTDIR/png/$B.png
                 IMAGESIZE=$(identify tmp/tmp.png | cut -f 3 -d " " | cut -d "x" -f 1,2 --output-delimiter " ")
                 TIME=$(cat tmp/tmp.timing)
@@ -75,6 +80,17 @@ do
                 SIZE=$(stat -c %s $OUTFILE 2>&1)
                 RAT=$(echo $SIZE/$SSIZE |bc -l)
                 echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_STILL.optiPNG.$TYPE
+                fi
+                if [[ -n $ZOPFLIPNG ]]
+                then
+                OUTFILE=$OUTDIR/zopflipng/$B.png
+                $TIMER $ZOPFLIPNG tmp/tmp.png $OUTFILE
+                TIME=$(cat tmp/tmp.timing)
+                $TIMER convert $OUTFILE tmp/tmp.pam
+                TIMED=$(cat tmp/tmp.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_STILL.zopfliPNG.$TYPE
                 fi
 
                 if [[ -n $PNGADAM7 ]]
@@ -106,7 +122,7 @@ do
                 OUTFILE=$OUTDIR/bpg/$B.bpg
                 $TIMER $BPG tmp/tmp.png -o $OUTFILE
                 TIME=$(cat tmp/tmp.timing)
-                $TIMER $DBPG $OUTFILE -o tmp/tmp_bpg-decoded.png
+                $TIMER $DBPG $OUTFILE -o tmp/bpg-decoded.png
                 TIMED=$(cat tmp/tmp.timing)
                 SIZE=$(stat -c %s $OUTFILE 2>&1)
                 RAT=$(echo $SIZE/$SSIZE |bc -l)
@@ -148,12 +164,23 @@ do
                 RAT=$(echo $SIZE/$SSIZE |bc -l)
                 echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_STILL.WebP.$TYPE
                 fi
+                if [[ -n $CWEBPnew ]]
+                then
+                OUTFILE=$OUTDIR/webp2/$B.webp
+                $TIMER $CWEBPnew tmp/tmp.png -o $OUTFILE
+                TIME=$(cat tmp/tmp.timing)
+                $TIMER $DWEBPnew $OUTFILE -o tmp/tmp_webp-decoded.pam
+                TIMED=$(cat tmp/tmp.timing)
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                RAT=$(echo $SIZE/$SSIZE |bc -l)
+                echo "$RAT $SSIZE $STIME $STIMED $B $TYPE $IMAGESIZE $SIZE $TIME $TIMED" >> $PREFIX_STILL.WebP2.$TYPE
+                fi
 
                 if [[ -n $JXR ]]
                 then
                 OUTFILE=$OUTDIR/jxr/$B.jxr
-                convert tmp/tmp.png tmp/tmp.pnm
-                $TIMER $JXR -i tmp/tmp.pnm -o $OUTFILE
+                convert tmp/tmp.png tmp/tmp.ppm
+                $TIMER $JXR -i tmp/tmp.ppm -o $OUTFILE
                 TIME=$(cat tmp/tmp.timing)
                 $TIMER $DJXR -i $OUTFILE -o tmp/tmp_jxr-decoded.bmp
                 TIMED=$(cat tmp/tmp.timing)

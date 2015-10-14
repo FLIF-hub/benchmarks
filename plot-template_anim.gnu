@@ -22,6 +22,6 @@ plot [x1:x2][y1:y2]\
 '<sort -n results/*anim.MNG.CATEGORY' using ($0):($1) with lines lw 1  lc rgb "#008800" lt 1 title "MNG",\
 '<sort -n results/*anim.BPG.CATEGORY' using ($0):($1) with lines lw 1  lc rgb "#AA00AA" lt 1 title "BPG",\
 '<sort -n results/*anim.WebP.CATEGORY' using ($0):($1) with lines lw 3 lc rgb "#00AAAA" lt 1 title "WebP",\
-'<sort -n results/*anim.FLIF-n.CATEGORY' using ($0):($1) with lines lw 3 lc rgb "#DD2200" lt 1 title "FLIF -n",\
-'<sort -n results/*anim.FLIF.CATEGORY' using ($0):($1) with lines lw 3 lc rgb "#880000" lt 1 title "FLIF"
+'<sort -n results/*anim.FLIF.CATEGORY' using ($0):($1) with lines lw 3 lc rgb "#880000" lt 1 title "FLIF",\
+'<sort -n results/*anim.FLIF-n.CATEGORY' using ($0):($1) with lines lw 3 lc rgb "#DD2200" lt 1 title "FLIF -n"
 

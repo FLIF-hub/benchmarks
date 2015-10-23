@@ -1,5 +1,5 @@
 
-FLIF="../FLIF/flif -v"
+FLIF="../FLIF/flif -vv"
 
 PREFIX_STILL="results/r_still"
 PREFIX_ANIM="results/r_anim"
@@ -19,16 +19,17 @@ TIME_EVERYTHING="yes"
 PNG="convert -quality 95"
 PNGADAM7="convert -interlace PNG"
 OPTIPNG="optipng -o7 -strip all -clobber"
-ZOPFLIPNG="programs/zopflipng -y -m --lossy_transparent"
-BPG="programs/bpgenc -lossless -m 9"
-DBPG="programs/bpgdec"
-JXR="programs/JxrEncApp"
-DJXR="programs/JxrDecApp"
+#ZOPFLIPNG="programs/zopflipng -y -m --lossy_transparent"
+#BPG="programs/bpgenc -lossless -m 9"
+#DBPG="programs/bpgdec"
+#JXR="programs/JxrEncApp"
+#DJXR="programs/JxrDecApp"
 CWEBP="cwebp -lossless -m 6"
 DWEBP="dwebp -pam"
-CWEBPnew="programs/cwebp -lossless -m 6"
-DWEBPnew="programs/dwebp -pam"
-JP2="convert -quality 100"
+#CWEBPnew="programs/cwebp -lossless -m 6"
+#DWEBPnew="programs/dwebp -pam"
+JP2="opj_compress -r 1 -i"
+DJP2="opj_decompress -i"
 JPEG="convert -quality 100 -interlace JPEG"
 
 
@@ -42,7 +43,7 @@ GIF2APNG="gif2apng"
 # MNG
 MNG="convert -layers optimize-plus"
 
-BPG_A="programs/bpgenc -lossless -m 9 -a"
+#BPG_A="programs/bpgenc -lossless -m 9 -a"
 
 # GIF (will be lossy if > 256 colors)
 PNG2GIF="convert -layers optimize-plus"

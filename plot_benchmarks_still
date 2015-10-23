@@ -13,11 +13,12 @@ do
       echo "Plotting $TYPE"
       LOWER=$(sort -n $PREFIX_STILL.*.$TYPE | head -n 1 | cut -f 1 -d " ")
       UPPER=$(sort -n $PREFIX_STILL.*.$TYPE | tail -n 1 | cut -f 1 -d " ")
-      echo "Interval: $LOWER .. $UPPER"
-      LOWER=$(echo "$LOWER - $LOWER % 0.1" | bc)
-      UPPER=$(echo "$UPPER - $UPPER % 0.1 + 0.1" | bc)
-      echo "Interval: $LOWER .. $UPPER"
+#      echo "Interval $LOWER..$UPPER"
+      LOWER=$(echo "$LOWER - $LOWER % 0.1 - 0.1" | bc)
+      UPPER=$(echo "$UPPER - $UPPER % 0.01 " | bc)
+#      echo "Interval $LOWER..$UPPER"
       LOGSCALE=""
+      if [ $(echo "$LOWER < 0.4" | bc) -eq 1 ]; then LOWER="0"; fi
       if [ $(echo "$UPPER > 1.5" | bc) -eq 1 ]; then LOGSCALE="_logscale"; fi
       perl -p -e "s/CATEGORY/$TYPE/g; s/LOWER/$LOWER/g; s/UPPER/$UPPER/g; s/NUMBER/$(wc -l $PREFIX_STILL.FLIF.$TYPE | cut -f 1 -d " ")/g"  plot-template_still$LOGSCALE.gnu > tmp/plot.gnu
       gnuplot tmp/plot.gnu

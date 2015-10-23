@@ -132,9 +132,9 @@ do
                 if [[ -n $JP2 ]]
                 then
                 OUTFILE=$OUTDIR/jp2/$B.jp2
-                $TIMER $JP2 tmp/tmp.png $OUTFILE
+                $TIMER $JP2 tmp/tmp.png -o $OUTFILE
                 TIME=$(cat tmp/tmp.timing)
-                $TIMER convert $OUTFILE tmp/tmp_jp2-decoded.pam
+                $TIMER $DJP2 $OUTFILE -o tmp/tmp_jp2-decoded.pnm
                 TIMED=$(cat tmp/tmp.timing)
                 SIZE=$(stat -c %s $OUTFILE 2>&1)
                 RAT=$(echo $SIZE/$SSIZE |bc -l)

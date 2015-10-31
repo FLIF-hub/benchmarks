@@ -28,5 +28,3 @@ function check {
                   fi
         done
 }
-
-

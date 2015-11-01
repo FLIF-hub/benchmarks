@@ -142,6 +142,7 @@ do
                 fi
                 if [[ "$DO_FLIF_N" == "yes" ]]
                 then
+                rm tmp_anim/tmp_anim_flif-decoded*.pam
                 OUTFILE=$OUTDIR/flif-n/$B.flif
                 $TIMER $FLIF -n tmp_anim/tmp_anim-frame*.png $OUTFILE
                 TIME=$(cat tmp_anim/tmp_anim.timing)

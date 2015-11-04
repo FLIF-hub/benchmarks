@@ -11,12 +11,21 @@ do
     if [ -e $PREFIX_ANIM.FLIF.$TYPE ]
     then
       echo "Plotting $TYPE"
-      perl -p -e "s/CATEGORY/$TYPE/g; s/NUMBER/$(wc -l $PREFIX_ANIM.FLIF.$TYPE | cut -f 1 -d " ")/g"  plot-template_anim.gnu > tmp/plot.gnu
+      LOWER=$(sort -n $PREFIX_ANIM.*.$TYPE | head -n 1 | cut -f 1 -d " ")
+      UPPER=$(sort -n $PREFIX_ANIM.*.$TYPE | tail -n 1 | cut -f 1 -d " ")
+#      echo "Interval $LOWER..$UPPER"
+      LOWER=$(echo "$LOWER - $LOWER % 0.1 " | bc)
+      UPPER=$(echo "$UPPER - $UPPER % 0.01 " | bc)
+#      echo "Interval $LOWER..$UPPER"
+      if [ $(echo "$LOWER < 0.7" | bc) -eq 1 ]; then LOWER="0"; fi
+      if [ $(echo "$UPPER > 2.5" | bc) -eq 1 ]; then UPPER="2.5"; fi
+      perl -p -e "s/CATEGORY/$TYPE/g; s/LOWER/$LOWER/g; s/UPPER/$UPPER/g; s/NUMBER/$(wc -l $PREFIX_ANIM.FLIF.$TYPE | cut -f 1 -d " ")/g"  plot-template_anim.gnu > tmp/plot.gnu
       gnuplot tmp/plot.gnu
     else
       echo "Skipping $TYPE"
     fi
 done
+
 
 perl -p -e "s/CATEGORY/\*/g; s/\*.png/all-anim.png/; s/NUMBER/$(cat $PREFIX_ANIM.FLIF.* |wc -l)/"  plot-template_anim.gnu > tmp/plot.gnu
 gnuplot tmp/plot.gnu

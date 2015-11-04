@@ -14,7 +14,7 @@ do
       LOWER=$(sort -n $PREFIX_STILL.*.$TYPE | head -n 1 | cut -f 1 -d " ")
       UPPER=$(sort -n $PREFIX_STILL.*.$TYPE | tail -n 1 | cut -f 1 -d " ")
 #      echo "Interval $LOWER..$UPPER"
-      LOWER=$(echo "$LOWER - $LOWER % 0.1 - 0.1" | bc)
+      LOWER=$(echo "$LOWER - $LOWER % 0.1 " | bc)
       UPPER=$(echo "$UPPER - $UPPER % 0.01 " | bc)
 #      echo "Interval $LOWER..$UPPER"
       LOGSCALE=""

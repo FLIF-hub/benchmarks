@@ -8,7 +8,7 @@ rm = 0.95
 gap = 0.02
 size = 0.8
 kk = 0.8 # relative height of bottom plot
-y1 = LOWER; y2 = 1.1; y3 = 1.1; y4 = UPPER
+y1 = LOWER; y2 = 1.2; y3 = 1.2; y4 = UPPER
 x1 = 0
 x2 = NUMBER
 

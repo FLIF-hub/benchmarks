@@ -9,7 +9,7 @@ mkdir -p $(dirname $PREFIX_STILL)
 mkdir -p tmp
 
 
-for c in $INPUTPREFIX_STILL/*
+for c in $INPUTPREFIX_STILL/wiki*
 do
     TYPE=$(basename $c)
     OUTDIR=$OUTPUTPREFIX/still/$TYPE/
@@ -215,6 +215,7 @@ do
                 RAT=$(echo $SIZE/$SSIZE |bc -l)
                 if [[ "$CHECK_DECODE" == "yes" ]]
                 then
+                  rm tmp/tmp_flif-decoded.pam
                   $TIMER $FLIF -d $OUTFILE tmp/tmp_flif-decoded.pam
                   TIMED=$(cat tmp/tmp.timing)
                   check tmp/tmp tmp/tmp_flif-decoded.pam

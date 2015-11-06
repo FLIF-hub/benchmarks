@@ -1,0 +1,45 @@
+#!/bin/bash
+
+source configuration
+
+
+mkdir -p tmp
+
+formats="FLIF FLIF-n WebP2 WebP BPG zopfliPNG optiPNG PNG PNG-Adam7 optiPNG-Adam7 JP2 JXR JPEG"
+echo -n "corpus"
+for f in $formats; do echo -n ", $f"; done
+echo
+
+for c in $INPUTPREFIX_STILL/*
+do
+    TYPE=$(basename $c)
+    if [ -e $PREFIX_STILL.FLIF.$TYPE ]
+    then
+      echo -n "$TYPE "
+      for f in $formats
+      do
+        echo -n ", $(perl -le 'map { $sum += $_ } @ARGV; print $sum;' $(cat $PREFIX_STILL.$f.$TYPE | cut -f 9 -s -d " ") )"
+      done
+      echo
+    fi
+done
+
+formats="FLIF FLIF-n APNG MNG GIF WebP BPG"
+echo -n "corpus"
+for f in $formats; do echo -n ", $f"; done
+echo
+
+for c in $INPUTPREFIX_ANIM/*
+do
+    TYPE=$(basename $c)
+    if [ -e $PREFIX_ANIM.FLIF.$TYPE ]
+    then
+      echo -n "$TYPE "
+      for f in $formats
+      do
+        echo -n ", $(perl -le 'map { $sum += $_ } @ARGV; print $sum;' $(cat $PREFIX_ANIM.$f.$TYPE | cut -f 9 -s -d " ") )"
+      done
+      echo
+    fi
+done
+

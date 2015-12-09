@@ -1,0 +1,1 @@
+These are all the png files of at least 5kb I found in the /usr/share/ (except /usr/share/icons/) of a pretty standard Debian installation.

@@ -1,0 +1,1 @@
+This is more or less the contents of /usr/share/icons/ of a pretty standard Debian installation.

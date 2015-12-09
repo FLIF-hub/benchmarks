@@ -1,0 +1,12 @@
+The three images in the directory "converted-to-ppm"
+are identical to the images taken from the ITU-T.24 test image
+set in the directory original, but have been converted to ppm for
+your convenience. Please use the ppm versions for performance
+tests. The ITU test images are available under their orginal
+license, see original/Readme.txt for details.
+
+Other images from ITU-T.24 are not included in the test image
+set of the ICIP challenge because the organizers felt that they
+might no longer be appropriate due to resolution and contents.
+
+Thomas Richter, November 2015

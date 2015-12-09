@@ -1,0 +1,70 @@
+            Image File Specifications for 
+  Standard Digitalized Image Set on CD-ROM2 (CD-04 ed.) 
+    of the ITU-T Recommendation T.24 (06/1998).
+
+This CD-ROM contains the supplementary charts specified in ITU-T
+Recommendation T.24 and that were added to the 1994 version
+(CD-03 edition).
+
+The images are located in the sub-directory \IMAGES2.
+
+
+SHORT IMAGE FILE DESCRIPTION:
+
+Filename  Image Name       bits/    Pixels        size   
+                         component   (WxH)       (bytes)
+
+YUV color space images (CCIR images)
+
+HOTEL     Hotel              8      720x576      830'932
+GOLD      Gold               8      720x576      830'932
+
+CMYK color space images
+
+BIKE      N5 "Bike"          8     2048x2560  20'972'544
+WOMAN     N1 "Portrait"      8     2048x2560  20'972'544
+CAFÉ      N2 "Cafeteria"     8     2048x2560  20'972'544
+TOOLS     Tools              8     1524x1200   7'315'854
+
+RGB color space images
+
+BIKE3     Motorcycle         8      781x919    2'153'821
+WATER     Water              8     2048x3072  18'899'574
+CATS      Cats               8     2048x3072  18'899'568
+CMPND1    Text on photo      8      512x768    1'179'892
+CMPND2    Text and photo     8     1024x1400   4'301'404
+
+Gray scale medical images
+
+FINGER    l1010092           8      512x512      262'482
+X-Ray     X-ray - "XR1.1"   12     2048x1680   6'881'312
+CR        CR "CR-ABDM"      10     1744x2048   4'465'286
+CT        CT "CT.1"         12      512x512      524'320
+US        Ultrasound "US1.DCM" 8    512x488      229'808
+MRI       MRI "MRI.1"       11      256x256       92'160
+
+CIELAB color Line drawing images
+
+PC        Printed Circuit    8     1575x2185  10'324'620
+          board layout
+
+Gray scale Line drawing images
+
+EDUC      Fine Arts 1, engraving 8 2850x4096  11'676'100
+
+RGB color space
+
+INGRES8   Fine Arts 2, painting  8 4088x4608  56'512'700
+INGRES16  Fine Arts 3, painting 12 4088x4608 113'025'212
+
+Luminance Low-contrast Gray-scale Images
+
+AERIAL1   Aerial view        8   14565x14680 213'843'694
+AERIAL2   Aerial view        8     2048x2048   4'194'774
+CMPND3    Graphics           8     5120x6624  33'915'328
+MAT       Mountains          8     1528x1146     175'153
+SEISMIC   Texture            8      512x512      262'592
+TARGET    Patterns           8      512x512      262'592
+TXTUR1    Aerial view        8     1024x1024   1'048'854
+TXTUR2    Aerial view        8     1024x1024   1'055'036
+

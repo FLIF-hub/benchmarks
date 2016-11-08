@@ -1,0 +1,23 @@
+
+FLIF="flif -vv -Q"
+
+PREFIX_STILL="results/r_still"
+INPUTPREFIX_STILL="../test_images/"
+OUTPUTPREFIX="output/"
+
+DO_FLIF="yes"
+#DO_FLIF_N="yes"
+
+
+
+# other image formats to compare to
+PNG="convert -quality 95"
+#JXR="../programs/JxrEncApp"
+#DJXR="../programs/JxrDecApp"
+#CWEBP="../programs/cwebp"
+#DWEBP="../programs/dwebp"
+#DO_WEBPNL=yes
+JP2="convert"
+DJP2="convert"
+JPEG="convert -interlace JPEG -quality"
+

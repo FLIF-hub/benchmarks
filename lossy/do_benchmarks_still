@@ -1,0 +1,209 @@
+#!/bin/bash
+
+
+source configuration
+
+
+mkdir -p $(dirname $PREFIX_STILL)
+mkdir -p tmp
+
+
+for c in $INPUTPREFIX_STILL/*
+do
+    TYPE=$(basename $c)
+    OUTDIR=$OUTPUTPREFIX/still/$TYPE/
+    mkdir -p $OUTDIR
+    mkdir -p $OUTDIR/png
+    if [[ -n $PNGADAM7 ]]; then mkdir -p $OUTDIR/pngAdam7; fi
+    if [[ -n $OPTIPNG ]]; then mkdir -p $OUTDIR/optipng; fi
+    if [[ -n $ZOPFLIPNG ]]; then mkdir -p $OUTDIR/zopflipng; fi
+    if [[ -n $PNGADAM7 ]]; then mkdir -p $OUTDIR/optipngAdam7; fi
+    if [[ -n $BPG ]]; then mkdir -p $OUTDIR/bpg; fi
+    if [[ -n $JXR ]]; then mkdir -p $OUTDIR/jxr; fi
+    if [[ -n $JP2 ]]; then mkdir -p $OUTDIR/jp2; fi
+    if [[ -n $JPEG ]]; then mkdir -p $OUTDIR/jpeg; fi
+    if [[ -n $CWEBP ]]; then mkdir -p $OUTDIR/webp; fi
+    if [[ -n $CWEBP ]]; then mkdir -p $OUTDIR/webpnl; fi
+    mkdir -p $OUTDIR/flif
+    mkdir -p $OUTDIR/flif-n
+
+
+    for f in $c/*.png
+    do
+                if [ "$f" == "$c/*.png" ]
+                then
+                continue
+                fi
+                rm -f results/*
+
+                B=$(basename $f .png)
+                echo "Category: $TYPE =========================================================== Image $B"
+                rm -f tmp/tmp*
+                $PNG $f -depth 8 tmp/tmp.png
+                IMAGESIZE=$(identify tmp/tmp.png | cut -f 3 -d " " | cut -d "x" -f 1,2 --output-delimiter " ")
+
+        for q in -2000 -800 -500 -200 -150 -98 -80 -60 -40 -30 -20 -10 0 10 20 30 40 50 60 70 75 80 85 90 93 97 100
+        do
+
+            echo Quality $q
+                if [[ "$DO_FLIF" == "yes" ]]
+                then
+                echo FLIF
+                OUTFILE=$OUTDIR/flif/$B-$q.flif
+                OUTFILEP=$OUTDIR/flif/$B-$q.png
+                $FLIF $q tmp/tmp.png $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                  $FLIF -d $OUTFILE $OUTFILEP
+                  DSSIM=$(./dssim tmp/tmp.png $OUTFILEP | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png $OUTFILEP null: 2>&1)
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $q $IMAGESIZE" >> $PREFIX_STILL.FLIF.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $q $IMAGESIZE"
+                fi
+                if [[ "$DO_FLIF_N" == "yes" ]]
+                then
+                echo FLIF -N
+                OUTFILE=$OUTDIR/flif-n/$B-$q.flif
+                $FLIF $q -N tmp/tmp.png $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                  $FLIF -d $OUTFILE tmp/tmp_flif-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_flif-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_flif-decoded.png null: 2>&1)
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $q $IMAGESIZE" >> $PREFIX_STILL.FLIF-N.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $q $IMAGESIZE"
+                fi
+                if [ $q -lt -100 ]
+                then
+                    continue
+                fi
+
+                if [[ -n $JPEG ]]
+                then
+                echo mozJPEG
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/jpeg/$B-$qq.jpeg
+                convert tmp/tmp.png tmp/tmp.ppm
+#                $JPEG $qq tmp/tmp.png $OUTFILE
+#                chromasubsample=""
+#                if [[ $qq -ge 90 ]]; then chromasubsample="-sample 1x1"; fi
+                ./cjpeg -q $qq $chromasubsample <tmp/tmp.ppm >$OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                convert $OUTFILE tmp/tmp_jpeg-decoded.ppm
+                convert tmp/tmp_jpeg-decoded.ppm tmp/tmp_jpeg-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_jpeg-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_jpeg-decoded.ppm null: 2>&1)
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.mozJPEG.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+
+                echo JPEG
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/jpeg/$B-$qq.jpeg
+                convert tmp/tmp.png tmp/tmp.ppm
+                $JPEG $qq tmp/tmp.png $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                convert $OUTFILE tmp/tmp_jpeg-decoded.ppm
+                convert tmp/tmp_jpeg-decoded.ppm tmp/tmp_jpeg-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_jpeg-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_jpeg-decoded.ppm null: 2>&1)
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.JPEG.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+                fi
+
+                echo PNG8
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/png/$B-$qq.png
+                pngquant --quality 0-$qq tmp/tmp.png
+                mv tmp/tmp-fs8.png $OUTFILE
+                optipng $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                cp $OUTFILE tmp/tmp_png-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_png-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_png-decoded.png null: 2>&1)
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.PNG.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+
+
+                if [[ -n $CWEBP ]]
+                then
+                echo WebP
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/webp/$B-$qq.webp
+                $CWEBP -q $qq tmp/tmp.png -o $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                $DWEBP $OUTFILE -o tmp/tmp_webp-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_webp-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_webp-decoded.png null: 2>&1)
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.WebP.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+                fi
+
+                if [[ -n $DO_WEBPNL ]]
+                then
+                echo WebP near lossless
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/webpnl/$B-$qq.webp
+                $CWEBP -near_lossless $qq tmp/tmp.png -o $OUTFILE
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                $DWEBP $OUTFILE -o tmp/tmp_webp-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_webp-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_webp-decoded.png null: 2>&1)
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.WebPNL.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+                fi
+
+                if [[ -n $JXR ]]
+                then
+                echo JPEG XR
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/jxr/$B-$qq.jxr
+                convert tmp/tmp.png tmp/tmp.ppm
+                $JXR -i tmp/tmp.ppm -o $OUTFILE -q $(echo "$qq/100" | bc -l)
+                $DJXR -i $OUTFILE -o tmp/tmp_jxr-decoded.bmp
+                convert tmp/tmp_jxr-decoded.bmp tmp/tmp_jxr-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_jxr-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_jxr-decoded.png null: 2>&1)
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.JXR.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+                fi
+
+                if [[ -n $JP2 ]]
+                then
+                echo JPEG 2000
+                qq=$(( 50 + $q/2 ))
+                OUTFILE=$OUTDIR/jp2/$B-$qq.jp2
+                $JP2 tmp/tmp.png -quality $qq $OUTFILE
+                TIME=$(cat tmp/tmp.timing)
+                $DJP2 $OUTFILE tmp/tmp_jp2-decoded.png
+                convert tmp/tmp_jp2-decoded.png tmp/tmp_jp2-decoded.pam
+                convert tmp/tmp_jp2-decoded.pam tmp/tmp_jp2-decoded.png
+                  DSSIM=$(./dssim tmp/tmp.png tmp/tmp_jp2-decoded.png | cut -f 1 )
+                  PSNR=$(compare -metric psnr tmp/tmp.png tmp/tmp_jp2-decoded.png null: 2>&1)
+                  if [ "$PSNR" = "inf" ] ; then PSNR=70; fi
+                  if [ "$DSSIM" = "0.000000" ] ; then DSSIM=0.0000001; fi
+                SIZE=$(stat -c %s $OUTFILE 2>&1)
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE" >> $PREFIX_STILL.JP2.$TYPE-$B
+                echo "$SIZE $DSSIM $PSNR $TYPE $B $qq $IMAGESIZE"
+                fi
+
+        done
+        ./plot_benchmarks_still $B
+        mkdir -p result_plots
+        mv compression-still*.svg result_plots/
+        mkdir -p results_data
+        mv results/* results_data/
+
+      done
+done

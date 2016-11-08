@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source configuration
+
+
+mkdir -p tmp
+
+for c in $INPUTPREFIX_STILL/*
+do
+    TYPE=$(basename $c)
+    if [ -e $PREFIX_STILL.JPEG.$TYPE* ]
+    then
+      echo "Plotting $TYPE"
+      perl -p -e "s/CATEGORY/$TYPE/g; s/IMAGE/$1/g;"  plot-template.gnu > tmp/plot.gnu
+      ./gnuplot tmp/plot.gnu
+      perl -p -e "s/CATEGORY/$TYPE/g; s/IMAGE/$1/g;"  plot-template-DSSIM.gnu > tmp/plot.gnu
+      ./gnuplot tmp/plot.gnu
+#    else
+#      echo "Skipping $TYPE"
+    fi
+done
